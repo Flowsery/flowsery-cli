@@ -98,7 +98,7 @@ beforeEach(() => {
   state.metadataQueries = [];
   state.metadataThrows = false;
   resetSiteMetadata();
-  initOutput({ isTTY: true, command: 'test' });
+  initOutput({ isTTY: true, env: {}, command: 'test' });
 });
 
 afterEach(() => {

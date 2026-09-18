@@ -127,7 +127,7 @@ beforeEach(() => {
   state.getThrows = undefined;
   state.patched = [];
 
-  initOutput({ isTTY: true, command: 'test' });
+  initOutput({ isTTY: true, env: {}, command: 'test' });
 });
 
 afterEach(() => {
