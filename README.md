@@ -16,13 +16,17 @@ npm install -g @flowsery/cli
 npx -p @flowsery/cli flowsery --help
 
 # macOS and Linux, standalone binary, no Node required
-brew install Flowsery/tap/flowsery
+brew trust Flowsery/tap && brew install Flowsery/tap/flowsery
 
 # or
 curl -fsSL https://flowsery.com/install.sh | sh
 ```
 
 `npx @flowsery/cli` prompts instead of running, because npx resolves a bin named after the unscoped package. Use `npx -p @flowsery/cli flowsery`. Plain `npx flowsery` resolves to the unscoped `flowsery` package, which is the browser tracking script, not this CLI.
+
+Homebrew 7 refuses to load a formula from a third-party tap until you trust it, which is
+what `brew trust` does. Skip it and both `brew install` and `brew upgrade` stop with
+"Refusing to load formula ... from untrusted tap".
 
 The install script downloads the release archive for your platform, verifies its checksum, and puts the binary in `~/.local/bin`. It never edits your shell rc files; it prints the `export PATH` line for you to add. Override the destination with `FLOWSERY_INSTALL_DIR`.
 
