@@ -1,0 +1,67 @@
+{
+  "name": "@flowsery/cli",
+  "version": "0.1.0",
+  "description": "Flowsery from your terminal",
+  "keywords": [
+    "cli",
+    "flowsery",
+    "analytics",
+    "web-analytics",
+    "session-replay",
+    "claude",
+    "cursor",
+    "windsurf"
+  ],
+  "homepage": "https://flowsery.com",
+  "bugs": {
+    "url": "https://github.com/Flowsery/flowsery-cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Flowsery/flowsery-cli.git"
+  },
+  "license": "MIT",
+  "author": "Flowsery <contact@flowsery.com> (https://flowsery.com)",
+  "type": "module",
+  "bin": {
+    "flowsery": "./dist/cli.js",
+    "fsy": "./dist/cli.js"
+  },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "compile": "bun build src/cli.ts --compile --minify --sourcemap --define __CLI_VERSION__=\"\\\"$npm_package_version\\\"\" --outfile dist/flowsery",
+    "sync-core": "sh scripts/sync-core.sh",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@types/node": "^22.15.0",
+    "commander": "^14.0.0",
+    "eslint": "^9.39.0",
+    "picocolors": "^1.1.1",
+    "tsdown": "^0.15.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.0"
+  }
+}
