@@ -9,26 +9,32 @@ interface Target {
 
 const TARGETS: Record<string, Target> = {
   dashboard: { path: () => '/dashboard', needsId: false },
-  site: { path: (id) => `/sites/${id}`, needsId: true },
-  sites: { path: () => '/sites', needsId: false },
-  issue: { path: (id) => `/issues/${id}`, needsId: true },
+  sites: { path: () => '/all-websites', needsId: false },
   issues: { path: () => '/issues', needsId: false },
-  visitor: { path: (id) => `/visitors/${id}`, needsId: true },
-  realtime: { path: () => '/realtime', needsId: false },
+  users: { path: () => '/users', needsId: false },
+  rules: { path: () => '/rules', needsId: false },
+  add: { path: () => '/add-website', needsId: false },
   tokens: { path: () => '/api-tokens', needsId: false },
   billing: { path: () => '/billing', needsId: false },
+  settings: { path: () => '/settings/general', needsId: false },
+  workspaces: { path: () => '/workspaces', needsId: false },
 };
 
 const ALIASES: Record<string, string> = {
   home: 'dashboard',
-  website: 'site',
+  realtime: 'dashboard',
+  site: 'sites',
+  website: 'sites',
   websites: 'sites',
-  live: 'realtime',
-  now: 'realtime',
+  'all-websites': 'sites',
+  issue: 'issues',
+  user: 'users',
+  visitors: 'users',
+  rule: 'rules',
+  'add-website': 'add',
   token: 'tokens',
   'api-tokens': 'tokens',
-  plan: 'billing',
-  upgrade: 'billing',
+  workspace: 'workspaces',
 };
 
 export function registerOpenCommand(program: Command): void {
