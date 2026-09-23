@@ -449,14 +449,17 @@ Add `--json` to a list command and the available field names are printed to stde
 | 0 | Success |
 | 1 | Generic failure, including 5xx |
 | 2 | Usage error: bad flag, missing argument, unknown enum or filter name, no website selected, prompt needed under `--no-input` |
-| 3 | Auth failure: 401, 403, missing or malformed token |
+| 3 | Auth failure: 401, missing or malformed token |
 | 4 | Not found: 404 |
 | 5 | Validation or other 400 |
 | 6 | Conflict: 409, duplicate transaction id |
 | 7 | Rate limited: 429 after retries |
 | 8 | Network failure or timeout |
-| 9 | Quota or plan limit: 402, `Upgrade to view this issue` |
+| 9 | Quota or plan limit: 402, `Upgrade to view this issue`, 403 `subscription_required` |
+| 10 | Permission denied: 403, the token is valid but not allowed to do this |
 | 130 | Interrupted with Ctrl-C |
+
+Exit 3 means get a working token. Exit 10 means the token works and someone with more access has to act; retrying from this machine changes nothing.
 
 ## Configuration and profiles
 
