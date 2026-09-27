@@ -168,7 +168,7 @@ export interface TrackGoalRequest extends TrackingTarget {
 }
 
 export interface TrackPaymentRequest extends TrackingTarget {
-  amount?: number;
+  amount: number;
   currency?: string;
   transactionId?: string;
   email?: string;

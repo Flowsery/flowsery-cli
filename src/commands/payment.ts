@@ -72,9 +72,12 @@ export async function buildTrackPaymentRequest(options: PaymentTrackOptions): Pr
   const site = await resolveSite(options);
   const force = options.force === true;
 
+  if (options.amount === undefined) {
+    throw usageError('payment track needs --amount.', 'The API rejects a payment without an amount, even with --force.');
+  }
+
   if (!force) {
     const missing = [
-      options.amount === undefined ? '--amount' : undefined,
       options.currency === undefined ? '--currency' : undefined,
       options.transactionId === undefined ? '--transaction-id' : undefined,
     ].filter((flag): flag is string => flag !== undefined);
@@ -91,13 +94,13 @@ export async function buildTrackPaymentRequest(options: PaymentTrackOptions): Pr
     throw usageError('--renewal and --refund cannot both be set.');
   }
 
-  const amount = options.amount === undefined ? undefined : parseAmount(options.amount);
+  const amount = parseAmount(options.amount);
   const currency = options.currency === undefined ? undefined : assertCurrency(options.currency);
   const timestamp = options.at === undefined ? undefined : parseWhen(options.at).toISOString();
 
   return {
     ...site.selector,
-    ...(amount === undefined ? {} : { amount }),
+    amount,
     ...(currency === undefined ? {} : { currency }),
     ...(options.transactionId ? { transactionId: options.transactionId.trim() } : {}),
     ...(options.email ? { email: options.email.trim() } : {}),
@@ -156,12 +159,12 @@ const runTrack = async (options: PaymentTrackOptions): Promise<void> => {
   if (isMachine()) {
     printResult('payment.track', response.data[0] ?? { message: 'accepted' }, {
       transactionId: body.transactionId ?? null,
-      amount: body.amount ?? null,
+      amount: body.amount,
     });
     return;
   }
 
-  const amount = body.amount ?? 0;
+  const amount = body.amount;
   const currency = body.currency ?? 'USD';
 
   success(
@@ -219,10 +222,10 @@ export function registerPaymentCommands(program: Command): void {
   withSite(
     payment
       .command('track')
-      .description('record one payment; a repeated transaction id is rejected, not deduplicated'),
+      .description('record one payment; a repeated transaction id is rejected with a 409, not deduplicated'),
   )
     .option('--amount <n>', 'amount in major units, for example 49.00')
-    .option('--currency <code>', 'ISO 4217 code (default: the website currency)')
+    .option('--currency <code>', 'ISO 4217 code (default: USD)')
     .option('--transaction-id <id>', 'your identifier for this payment, needed to delete it later')
     .option('--email <email>', 'customer email')
     .option('--name <name>', 'customer name')
@@ -232,7 +235,7 @@ export function registerPaymentCommands(program: Command): void {
     .option('--at <date>', 'when the payment happened, ISO 8601 (default: now)')
     .option('--visitor-uid <uid>', 'value of the visitor cookie the payment belongs to')
     .option('--session-uid <uid>', 'value of the session cookie the payment belongs to')
-    .option('--force', 'record the payment without --amount, --currency and --transaction-id')
+    .option('--force', 'record the payment without --currency and --transaction-id; --amount is still required')
     .action(async (options: PaymentTrackOptions) => {
       await runTrack(options);
     });

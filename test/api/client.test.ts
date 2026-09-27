@@ -304,7 +304,7 @@ describe('path building', () => {
 describe('write calls', () => {
   it('never marks a tracking write idempotent, because it double-counts on retry', async () => {
     await client.trackGoal({ name: 'signup_clicked' });
-    await client.trackPayment({ transactionId: 'txn_7f2a' });
+    await client.trackPayment({ amount: 49, transactionId: 'txn_7f2a' });
 
     for (const [options] of request.mock.calls) {
       expect(options.idempotent).toBeUndefined();

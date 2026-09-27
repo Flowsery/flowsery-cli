@@ -158,8 +158,10 @@ A value that looks like a domain is sent as `domain=`, a value that looks like a
 Names are `country region city device browser os referrer ref source via utm_source utm_medium utm_campaign utm_term utm_content page hostname entry_page channel goal`.
 
 ```bash
-flowsery stats overview -F 'country=DE|AT|CH' -F 'page~/blog' -F 'device!=Mobile'
+flowsery stats overview -F 'country=Germany|Austria|Switzerland' -F 'page~/blog' -F 'device!=Mobile'
 ```
+
+Values are the ones the matching breakdown prints, and equality is case-sensitive: `country` and `region` take full names (`Germany`, `California`), not ISO codes; `device` is `Desktop`, `Mobile` or `Tablet`; `referrer` is a source name such as `Google` for recognized sites, otherwise the domain.
 
 An unknown filter name is a usage error with exit 2, and that matters: the server strips unknown params without complaining, so a typo would otherwise return unfiltered numbers that look right.
 
@@ -305,7 +307,7 @@ $ flowsery breakdown referrers --limit 5
 
 | Command | Key flags | Notes |
 |---|---|---|
-| `goal list` | `--site`, paging | Every goal with its completion count |
+| `goal list` | `--site`, `--from`/`--to`, `-F`, paging | Every goal with its completion count in the window. Filters narrow the visitors counted; paging applies to the goal list |
 | `goal track <name>` | `--meta k=v`, `--visitor-uid`, `--session-uid`, `--timezone` | Name must match `^[a-z0-9_-]+$`, at most 64 characters. Repeated calls double-count |
 | `goal delete` | `--name`, `--visitor`, `--from`, `--to`, `--yes` | At least one filter is required, enforced before the request |
 
@@ -327,7 +329,7 @@ The delete filters are plain equality. The `!`, `~` and `|` operators do not app
 | `payment track` | `--amount`, `--currency`, `--transaction-id`, `--email`, `--name`, `--customer-id`, `--renewal`, `--refund`, `--at`, `--visitor-uid`, `--session-uid`, `--force` | Amount is in major units. `--amount 0` records a `free_trial` goal instead of a `payment` goal, and the CLI says so |
 | `payment delete` | `--transaction-id`, `--visitor`, `--from`, `--to`, `--yes` | At least one filter is required |
 
-`--amount`, `--currency` and `--transaction-id` are required unless you pass `--force`, because a payment with no transaction id can never be deleted. A repeated transaction id is rejected by the server rather than deduplicated, which is exit 6.
+`--amount` is always required, `--force` included, because the API rejects a payment without one. `--currency` and `--transaction-id` are required unless you pass `--force`, because a payment with no transaction id can never be deleted. A repeated transaction id is rejected by the server with a 409 rather than deduplicated. `--currency` is sent as given; a payment recorded without one is stored as `USD`, not in the website currency.
 
 ### issue
 
@@ -351,7 +353,7 @@ $ flowsery issue list --severity high --severity critical
   ℹ suspended issues appear only with --status suspended
 ```
 
-On a free trial the API answers `Upgrade to view this issue` past the first ten. The CLI prints that verbatim with exit 9 and the billing URL.
+On a free trial `issue list` shows only the first ten issues, and `issue get` or `issue status` on any other answers `Upgrade to view this issue`. The CLI prints that verbatim with exit 9 and the billing URL.
 
 ### visitor
 
@@ -449,10 +451,10 @@ Add `--json` to a list command and the available field names are printed to stde
 | 0 | Success |
 | 1 | Generic failure, including 5xx |
 | 2 | Usage error: bad flag, missing argument, unknown enum or filter name, no website selected, prompt needed under `--no-input` |
-| 3 | Auth failure: 401, missing or malformed token |
+| 3 | Auth failure: 401, missing, malformed or revoked token, or `token_issuer_lost_access` when the key's creator lost access |
 | 4 | Not found: 404 |
 | 5 | Validation or other 400 |
-| 6 | Conflict: 409, duplicate transaction id |
+| 6 | Conflict: 409 |
 | 7 | Rate limited: 429 after retries |
 | 8 | Network failure or timeout |
 | 9 | Quota or plan limit: 402, `Upgrade to view this issue`, 403 `subscription_required` |
@@ -489,7 +491,7 @@ Base URL resolution, highest first: `--api-url`, `FLOWSERY_API_URL`, the profile
 | `defaultWebsite` | Default for `--site` |
 | `language` | Default `x-language` header |
 | `updateCheck` | Set false to turn off the daily version check |
-| `workspaceId` | Workspace this profile talks to |
+| `workspaceId` | Stored with the profile for reference. The CLI does not send it: an API token already belongs to one workspace |
 
 ```bash
 flowsery config set defaultWebsite acme.com
