@@ -1,0 +1,29 @@
+README.md
+  s_b64cca8c850e97::t_a282f6db9f5d20 329
+package-lock.json
+  s_b64cca8c850e97::t_db6d8a1c038c97 3,9
+package.json
+  s_b64cca8c850e97::t_f06e99aabe7587 3
+src/api/types.ts
+  s_b64cca8c850e97::t_387aad5e1233e4 99,181-182
+src/commands/payment.ts
+  s_b64cca8c850e97::t_d41c203765d7a0 1-2,7-12,49-51,81-96,126-129,144-146,271-276
+test/commands/payment.test.ts
+  s_b64cca8c850e97::t_68aca9eb2a515a 39-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "291f0659bc41953d75302a94b002c67783ac2b83",
+  "prompts": {},
+  "sessions": {
+    "s_b64cca8c850e97": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f6229abe-395f-49a3-957a-9dad3afc6457",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Taras Shynkarenko <taras.shinkarenko@gmail.com>"
+    }
+  }
+}
