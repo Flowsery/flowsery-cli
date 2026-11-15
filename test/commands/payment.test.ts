@@ -36,4 +36,47 @@ describe('buildTrackPaymentRequest', () => {
       buildTrackPaymentRequest({ amount: '49', currency: 'eur', transactionId: ' txn_2 ' }),
     ).resolves.toEqual({ amount: 49, currency: 'EUR', transactionId: 'txn_2' });
   });
+
+  it('sends the timezone and the buyer IP and User-Agent', async () => {
+    await expect(
+      buildTrackPaymentRequest({
+        amount: '20',
+        currency: 'USD',
+        transactionId: 'txn_3',
+        timezone: 'Europe/Berlin',
+        customerIp: ' 203.0.113.7 ',
+        customerUserAgent: 'Mozilla/5.0 (Macintosh)',
+      }),
+    ).resolves.toEqual({
+      amount: 20,
+      currency: 'USD',
+      transactionId: 'txn_3',
+      timezone: 'Europe/Berlin',
+      customerIp: '203.0.113.7',
+      customerUserAgent: 'Mozilla/5.0 (Macintosh)',
+    });
+  });
+
+  it('refuses a customer IP that is not an address', async () => {
+    await expect(
+      buildTrackPaymentRequest({ amount: '20', currency: 'USD', transactionId: 'txn_4', customerIp: 'example.com' }),
+    ).rejects.toThrow(/--customer-ip/);
+  });
+
+  it('refuses a User-Agent longer than the API allows', async () => {
+    await expect(
+      buildTrackPaymentRequest({
+        amount: '20',
+        currency: 'USD',
+        transactionId: 'txn_5',
+        customerUserAgent: 'a'.repeat(1025),
+      }),
+    ).rejects.toThrow(/--customer-user-agent/);
+  });
+
+  it('refuses an unknown timezone', async () => {
+    await expect(
+      buildTrackPaymentRequest({ amount: '20', currency: 'USD', transactionId: 'txn_6', timezone: 'Mars/Base' }),
+    ).rejects.toThrow();
+  });
 });

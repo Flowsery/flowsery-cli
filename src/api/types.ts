@@ -96,6 +96,7 @@ export const DEFAULT_QUERY_LIMIT = 100;
 export const MAX_QUERY_LIMIT = 1000;
 export const MAX_GOAL_METADATA_PROPS = 10;
 export const GOAL_NAME_MAX_LENGTH = 64;
+export const CUSTOMER_USER_AGENT_MAX_LENGTH = 1024;
 export const GOAL_NAME_PATTERN = /^[a-z0-9_-]+$/;
 export const ISSUE_SEARCH_MAX_LENGTH = 200;
 
@@ -177,6 +178,8 @@ export interface TrackPaymentRequest extends TrackingTarget {
   isRenewal?: boolean;
   isRefund?: boolean;
   timestamp?: string;
+  customerIp?: string;
+  customerUserAgent?: string;
 }
 
 export interface UpdateIssueStatusRequest {

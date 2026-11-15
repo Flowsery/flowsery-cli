@@ -326,7 +326,7 @@ The delete filters are plain equality. The `!`, `~` and `|` operators do not app
 
 | Command | Key flags | Notes |
 |---|---|---|
-| `payment track` | `--amount`, `--currency`, `--transaction-id`, `--email`, `--name`, `--customer-id`, `--renewal`, `--refund`, `--at`, `--visitor-uid`, `--session-uid`, `--force` | Amount is in major units. `--amount 0` records a `free_trial` goal instead of a `payment` goal, and the CLI says so |
+| `payment track` | `--amount`, `--currency`, `--transaction-id`, `--email`, `--name`, `--customer-id`, `--renewal`, `--refund`, `--at`, `--visitor-uid`, `--session-uid`, `--timezone`, `--customer-ip`, `--customer-user-agent`, `--force` | Amount is in major units. `--customer-ip` and `--customer-user-agent` are the buyer's IP and User-Agent at checkout, for a server-side call that cannot match the payment to a visitor; Flowsery keeps only the country, browser, OS and device. `--amount 0` records a `free_trial` goal instead of a `payment` goal, and the CLI says so |
 | `payment delete` | `--transaction-id`, `--visitor`, `--from`, `--to`, `--yes` | At least one filter is required |
 
 `--amount` is always required, `--force` included, because the API rejects a payment without one. `--currency` and `--transaction-id` are required unless you pass `--force`, because a payment with no transaction id can never be deleted. A repeated transaction id is rejected by the server with a 409 rather than deduplicated. `--currency` is sent as given; a payment recorded without one is stored as `USD`, not in the website currency.

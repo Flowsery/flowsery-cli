@@ -1,8 +1,15 @@
+import { isIP } from 'node:net';
+
 import type { Command } from 'commander';
 
 import { deletePayments, trackPayment } from '../api/client.js';
-import type { DeletePaymentsQuery, TrackPaymentRequest } from '../api/types.js';
 import {
+  CUSTOMER_USER_AGENT_MAX_LENGTH,
+  type DeletePaymentsQuery,
+  type TrackPaymentRequest,
+} from '../api/types.js';
+import {
+  assertTimeZone,
   getGlobalOptions,
   hint,
   isMachine,
@@ -39,6 +46,9 @@ export interface PaymentTrackOptions extends SiteOption {
   at?: string;
   visitorUid?: string;
   sessionUid?: string;
+  timezone?: string;
+  customerIp?: string;
+  customerUserAgent?: string;
   force?: boolean;
 }
 
@@ -64,6 +74,22 @@ export function assertCurrency(raw: string): string {
   const value = raw.trim().toUpperCase();
   if (!CURRENCY.test(value)) {
     throw usageError(`--currency must be a three-letter ISO 4217 code, got "${raw}".`);
+  }
+  return value;
+}
+
+export function assertCustomerIp(raw: string): string {
+  const value = raw.trim();
+  if (isIP(value) === 0) {
+    throw usageError(`--customer-ip must be an IPv4 or IPv6 address, got "${raw}".`);
+  }
+  return value;
+}
+
+export function assertCustomerUserAgent(raw: string): string {
+  const value = raw.trim();
+  if (value.length > CUSTOMER_USER_AGENT_MAX_LENGTH) {
+    throw usageError(`--customer-user-agent can be at most ${CUSTOMER_USER_AGENT_MAX_LENGTH} characters.`);
   }
   return value;
 }
@@ -97,6 +123,10 @@ export async function buildTrackPaymentRequest(options: PaymentTrackOptions): Pr
   const amount = parseAmount(options.amount);
   const currency = options.currency === undefined ? undefined : assertCurrency(options.currency);
   const timestamp = options.at === undefined ? undefined : parseWhen(options.at).toISOString();
+  const timezone = options.timezone === undefined ? undefined : assertTimeZone(options.timezone.trim());
+  const customerIp = options.customerIp === undefined ? undefined : assertCustomerIp(options.customerIp);
+  const customerUserAgent =
+    options.customerUserAgent === undefined ? undefined : assertCustomerUserAgent(options.customerUserAgent);
 
   return {
     ...site.selector,
@@ -111,6 +141,9 @@ export async function buildTrackPaymentRequest(options: PaymentTrackOptions): Pr
     ...(timestamp === undefined ? {} : { timestamp }),
     ...(options.visitorUid ? { visitorUid: options.visitorUid.trim() } : {}),
     ...(options.sessionUid ? { sessionUid: options.sessionUid.trim() } : {}),
+    ...(timezone === undefined ? {} : { timezone }),
+    ...(customerIp === undefined ? {} : { customerIp }),
+    ...(customerUserAgent ? { customerUserAgent } : {}),
   };
 }
 
@@ -235,6 +268,12 @@ export function registerPaymentCommands(program: Command): void {
     .option('--at <date>', 'when the payment happened, ISO 8601 (default: now)')
     .option('--visitor-uid <uid>', 'value of the visitor cookie the payment belongs to')
     .option('--session-uid <uid>', 'value of the session cookie the payment belongs to')
+    .option('--timezone <tz>', 'IANA timezone of the buyer, used to place them in a country')
+    .option('--customer-ip <ip>', 'buyer IP at checkout, for a server-side call with no visitor; only the country is kept')
+    .option(
+      '--customer-user-agent <ua>',
+      `buyer User-Agent at checkout (at most ${CUSTOMER_USER_AGENT_MAX_LENGTH} characters); only browser, OS and device are kept`,
+    )
     .option('--force', 'record the payment without --currency and --transaction-id; --amount is still required')
     .action(async (options: PaymentTrackOptions) => {
       await runTrack(options);
